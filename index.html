@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BikeRun - Login</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066FF;
+            --primary-dark: #0052CC;
+            --success: #00C853;
+            --warning: #FF9800;
+            --danger: #FF4444;
+            --dark: #1A1A1A;
+            --light: #FFFFFF;
+            --gray-100: #F5F5F5;
+            --gray-200: #EEEEEE;
+            --gray-300: #E0E0E0;
+            --gray-400: #BDBDBD;
+            --gray-500: #9E9E9E;
+            --gray-600: #757575;
+            --gray-700: #616161;
+            --gray-800: #424242;
+            --gray-900: #212121;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        body.dark-mode {
+            --light: #1A1A1A;
+            --dark: #FFFFFF;
+            --gray-100: #212121;
+            --gray-200: #424242;
+            --gray-300: #616161;
+            --gray-400: #757575;
+            --gray-500: #9E9E9E;
+            --gray-600: #BDBDBD;
+            --gray-700: #E0E0E0;
+            --gray-800: #EEEEEE;
+            --gray-900: #F5F5F5;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .tela {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tela.ativa {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* ===== TELA LOGIN ===== */
+        #tela-login {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 48px 32px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        body.dark-mode .login-container {
+            background: rgba(26, 26, 26, 0.95);
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .login-container h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--gray-900);
+        }
+
+        body.dark-mode .login-container h1 {
+            color: var(--gray-100);
+        }
+
+        .login-container p {
+            color: var(--gray-600);
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        body.dark-mode .input-group label {
+            color: var(--gray-300);
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            background: var(--light);
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .login-links {
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .login-links a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.ativa {
+            display: block;
+        }
+
+        /* ===== TELA INICIAL ===== */
+        #tela-inicial {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .corridas-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 24px;
+        }
+
+        .corridas-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .card-corrida {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card-corrida:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-titulo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-criador {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .card-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ranking-preview {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-correr {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-correr:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-criar-container {
+            padding-top: 16px;
+        }
+
+        .btn-criar {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-criar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ===== TELA DETALHES ===== */
+        #tela-detalhes-corrida {
+            background: var(--light);
+            padding: 24px;
+        }
+
+        .detalhes-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-voltar {
+            background: var(--gray-100);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius);
+            margin-right: 16px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .btn-voltar:hover {
+            background: var(--gray-200);
+        }
+
+        .detalhes-titulo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .info-card {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .info-label-det {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .info-value-det {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .ranking-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-300);
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-pos {
+            font-weight: 600;
+            min-width: 30px;
+        }
+
+        .ranking-nome {
+            flex: 1;
+            margin: 0 12px;
+        }
+
+        .ranking-tempo {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .btn-iniciar {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            font-size: 1.2rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-iniciar:hover {
+            background: #00B34A;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ===== TELAS DE MAPA ===== */
+        #tela-editor, #tela-corrida {
+            padding: 0;
+        }
+
+        #map-editor, #map-corrida {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .botoes-mapa {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .btn-mapa {
+            padding: 14px 18px;
+            border: none;
+            border-radius: var(--radius);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            max-width: 140px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-mapa:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-inicio { background: var(--primary); }
+        .btn-checkpoint { background: var(--warning); color: var(--gray-900); }
+        .btn-chegada { background: var(--danger); }
+        .btn-salvar { background: var(--success); }
+        .btn-voltar-mapa { background: var(--gray-600); }
+
+        /* ===== TELA CORRIDA ===== */
+        #hud-corrida {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 20px 30px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 280px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        #cronometro {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        #hud-checkpoint, #hud-distancia {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .progresso-corrida {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ===== NOTIFICAÇÕES ===== */
+        .notificacao {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 16px 28px;
+            border-radius: var(--radius);
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .notificacao.ativa {
+            opacity: 1;
+        }
+
+        .notificacao.erro {
+            background: var(--danger);
+        }
+
+        .notificacao.info {
+            background: var(--gray-600);
+        }
+
+        /* ===== MODOS ===== */
+        .modo-ativo {
+            transform: scale(0.95);
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== MAPA MODO ESCURO ===== */
+        .dark-mode .leaflet-tile {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+        }
+
+        /* ===== SCROLLBAR ===== */
+        .corridas-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .corridas-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .corridas-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .corridas-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .ranking-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .ranking-container::-webkit-scrollbar-track {
+            background: var(--gray-200);
+            border-radius: 2px;
+        }
+
+        .ranking-container::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 2px;
+        }
+
+        body.dark-mode .ranking-container::-webkit-scrollbar-track {
+            background: var(--gray-700);
+        }
+
+        body.dark-mode .ranking-container::-webkit-scrollbar-thumb {
+            background: var(--gray-500);
+        }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+            }
+            
+            .card-info {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .botoes-mapa {
+                flex-wrap: wrap;
+            }
+            
+            .btn-mapa {
+                max-width: calc(50% - 6px);
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- TELA LOGIN -->
+    <div id="tela-login" class="tela ativa">
+        <div class="login-container">
+            <div class="logo">🚴‍♂️</div>
+            <h1>BikeRun</h1>
+            <p>Faça login para começar</p>
+            
+            <div class="input-group">
+                <label for="input-usuario">Usuário</label>
+                <input type="text" id="input-usuario" placeholder="Digite seu usuário" autocomplete="username">
+            </div>
+            
+            <div class="input-group">
+                <label for="input-senha">Senha</label>
+                <input type="password" id="input-senha" placeholder="Digite sua senha" autocomplete="current-password">
+            </div>
+            
+            <div id="error-message" class="error-message"></div>
+            
+            <button id="btn-login" class="btn btn-primary">
+                <span>Entrar</span>
+                <span>🔑</span>
+            </button>
+            
+            <button id="btn-cadastrar" class="btn btn-secondary">
+                <span>Criar Conta</span>
+                <span>👤</span>
+            </button>
+            
+            <div class="login-links">
+                <a href="#" id="btn-esqueci-senha">Esqueci a senha</a>
+                <a href="#" id="btn-convidado">Entrar como convidado</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA INICIAL -->
+    <div id="tela-inicial" class="tela">
+        <div class="header">
+            <h1 id="titulo-boas-vindas">🚴‍♂️ BikeRun</h1>
+            <div>
+                <button id="btn-sair" class="btn-icon" title="Sair" style="margin-right: 10px;">🚪</button>
+                <button id="btn-toggle-dark" class="btn-icon" title="Alternar modo">🌙</button>
+            </div>
+        </div>
+        
+        <div class="corridas-container">
+            <div class="corridas-grid" id="lista-corridas">
+                <!-- Corridas serão carregadas aqui -->
+            </div>
+        </div>
+        
+        <div class="btn-criar-container">
+            <button id="btn-ir-criar" class="btn-criar">
+                <span>➕</span>
+                <span>Criar Nova Corrida</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- TELA DETALHES CORRIDA -->
+    <div id="tela-detalhes-corrida" class="tela">
+        <div class="detalhes-header">
+            <button id="btn-voltar-detalhes" class="btn-voltar">←</button>
+            <h1 class="detalhes-titulo" id="detalhes-titulo">Detalhes da Corrida</h1>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-row">
+                <span class="info-label-det">📏 Distância</span>
+                <span class="info-value-det" id="detalhes-distancia">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label-det">⏱️ Tempo Estimado</span>
+                <span class="info-value-det" id="detalhes-tempo">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label-det">👤 Criada por</span>
+                <span class="info-value-det" id="detalhes-criador">-</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-row">
+                <span class="info-label-det">🏆 Ranking</span>
+            </div>
+            <div class="ranking-container" id="detalhes-ranking">
+                <!-- Ranking será carregado aqui -->
+            </div>
+        </div>
+        
+        <button id="btn-iniciar-corrida" class="btn-iniciar">
+            <span>▶️</span>
+            <span>Iniciar Corrida</span>
+        </button>
+    </div>
+
+    <!-- TELA EDITOR -->
+    <div id="tela-editor" class="tela">
+        <div id="map-editor"></div>
+        <div class="botoes-mapa">
+            <button id="btn-inicio" class="btn-mapa btn-inicio modo-ativo">📍 Início</button>
+            <button id="btn-checkpoint" class="btn-mapa btn-checkpoint">🔵 Checkpoint</button>
+            <button id="btn-chegada" class="btn-mapa btn-chegada">🏁 Chegada</button>
+            <button id="btn-salvar" class="btn-mapa btn-salvar">💾 Salvar</button>
+            <button id="btn-voltar-editor" class="btn-mapa btn-voltar-mapa">↩️ Voltar</button>
+        </div>
+    </div>
+
+    <!-- TELA CORRIDA -->
+    <div id="tela-corrida" class="tela">
+        <div id="hud-corrida">
+            <div id="cronometro">00:00:00</div>
+            <div id="hud-checkpoint">Próximo: Início</div>
+            <div id="hud-distancia">Distância: -- m</div>
+        </div>
+        <div class="progresso-corrida" id="progresso-corrida">
+            Checkpoint 0/0
+        </div>
+        <div class="botoes-mapa">
+            <button id="btn-iniciar-corrida-mapa" class="btn-mapa btn-salvar">▶️ Iniciar Corrida</button>
+            <button id="btn-voltar-corrida" class="btn-mapa btn-voltar-mapa">🚫 Desistir</button>
+        </div>
+        <div id="map-corrida"></div>
+    </div>
+
+    <!-- NOTIFICAÇÃO -->
+    <div id="notificacao" class="notificacao"></div>
+
+    <script>
+        // ===== SISTEMA DE LOGIN =====
+        const usuarios = JSON.parse(localStorage.getItem('bikerun_usuarios')) || {};
+        let usuarioLogado = null;
+
+        // Usuário admin padrão
+        if (!usuarios.admin) {
+            usuarios.admin = {
+                senha: 'admin123',
+                nome: 'Administrador',
+                dataCadastro: new Date().toISOString()
+            };
+            localStorage.setItem('bikerun_usuarios', JSON.stringify(usuarios));
+        }
+
+        // ===== VARIÁVEIS GLOBAIS =====
+        let nomeUsuario = '';
+        let mapEditor, mapCorrida;
+        let pontosDaCorrida = [];
+        let marcadores = [];
+        let linhaDoTrajeto = null;
+        let modoDeMarcacao = 'inicio';
+        
+        let cronometroInterval, tempoInicio, watchID;
+        let pontosDaCorridaAtual = [];
+        let idDaCorridaAtual = null;
+        let checkpointAlvoIndex = 0;
+        let marcadorPosicaoAtual = null;
+        let marcadorProximoCheckpoint = null;
+
+        const centroDoMapa = [-29.6789, -51.0528]; // Campo Bom, RS
+        const RAIO_DE_ACERTO_CHECKPOINT = 25; // 25 metros
+
+        // ===== DADOS DE EXEMPLO =====
+        const corridasExemplo = [
+            {
+                id: 1,
+                nome: "Trilha do Parque",
+                criador: "Pedro Silva",
+                distancia: 3200,
+                tempoEstimado: 10,
+                participantes: 12,
+                pontos: [
+                    [-29.6789, -51.0528],
+                    [-29.6800, -51.0550],
+                    [-29.6820, -51.0580],
+                    [-29.6840, -51.0600]
+                ]
+            },
+            {
+                id: 2,
+                nome: "Circuito Centro",
+                criador: "Ana Costa",
+                distancia: 5400,
+                tempoEstimado: 16,
+                participantes: 8,
+                pontos: [
+                    [-29.6789, -51.0528],
+                    [-29.6770, -51.0550],
+                    [-29.6750, -51.0580],
+                    [-29.6730, -51.0600]
+                ]
+            },
+            {
+                id: 3,
+                nome: "Caminho do Rio",
+                criador: "Carlos Lima",
+                distancia: 7800,
+                tempoEstimado: 23,
+                participantes: 15,
+                pontos: [
+                    [-29.6789, -51.0528],
+                    [-29.6810, -51.0540],
+                    [-29.6830, -51.0560],
+                    [-29.6850, -51.0580],
+                    [-29.6860, -51.0600]
+                ]
+            }
+        ];
+
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarApp();
+        });
+
+        function inicializarApp() {
+            configurarEventosLogin();
+            verificarLoginAutomatico();
+            configurarModoEscuro();
+        }
+
+        function configurarEventosLogin() {
+            // Login
+            document.getElementById('btn-login').addEventListener('click', fazerLogin);
+            document.getElementById('btn-cadastrar').addEventListener('click', mostrarCadastro);
+            document.getElementById('btn-esqueci-senha').addEventListener('click', esqueciSenha);
+            document.getElementById('btn-convidado').addEventListener('click', entrarComoConvidado);
+            document.getElementById('btn-sair').addEventListener('click', fazerLogout);
+
+            // Enter para login
+            document.getElementById('input-usuario').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') fazerLogin();
+            });
+            document.getElementById('input-senha').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') fazerLogin();
+            });
+
+            // Navegação
+            document.getElementById('btn-ir-criar').addEventListener('click', irParaEditor);
+            document.getElementById('btn-voltar-detalhes').addEventListener('click', voltarParaInicial);
+            document.getElementById('btn-voltar-editor').addEventListener('click', voltarParaInicial);
+            document.getElementById('btn-voltar-corrida').addEventListener('click', confirmarDesistencia);
+
+            // Modo escuro
+            document.getElementById('btn-toggle-dark').addEventListener('click', alternarModoEscuro);
+
+            // Editor de mapa
+            document.getElementById('btn-inicio').addEventListener('click', () => mudarModoMarcacao('inicio'));
+            document.getElementById('btn-checkpoint').addEventListener('click', () => mudarModoMarcacao('checkpoint'));
+            document.getElementById('btn-chegada').addEventListener('click', () => mudarModoMarcacao('chegada'));
+            document.getElementById('btn-salvar').addEventListener('click', salvarCorrida);
+
+            // Corrida
+            document.getElementById('btn-iniciar-corrida').addEventListener('click', prepararCorrida);
+            document.getElementById('btn-iniciar-corrida-mapa').addEventListener('click', iniciarCorrida);
+        }
+
+        function verificarLoginAutomatico() {
+            const sessao = JSON.parse(localStorage.getItem('bikerun_sessao'));
+            if (sessao && sessao.usuario && sessao.expira > Date.now()) {
+                usuarioLogado = sessao.usuario;
+                nomeUsuario = usuarios[usuarioLogado].nome;
+                entrarNoApp();
+            }
+        }
+
+        function configurarModoEscuro() {
+            const modoSalvo = localStorage.getItem('darkMode') === 'true';
+            if (modoSalvo) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('btn-toggle-dark').textContent = '☀️';
+            }
+        }
+
+        // ===== FUNÇÕES DE LOGIN =====
+        function fazerLogin() {
+            const usuario = document.getElementById('input-usuario').value.trim();
+            const senha = document.getElementById('input-senha').value;
+            const errorElement = document.getElementById('error-message');
+
+            // Validação
+            if (!usuario || !senha) {
+                mostrarErroLogin('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            // Verificar credenciais
+            if (usuarios[usuario] && usuarios[usuario].senha === senha) {
+                usuarioLogado = usuario;
+                nomeUsuario = usuarios[usuario].nome;
+                
+                // Salvar sessão (expira em 7 dias)
+                const sessao = {
+                    usuario: usuario,
+                    expira: Date.now() + (7 * 24 * 60 * 60 * 1000)
+                };
+                localStorage.setItem('bikerun_sessao', JSON.stringify(sessao));
+                
+                entrarNoApp();
+            } else {
+                mostrarErroLogin('Usuário ou senha incorretos!');
+            }
+        }
+
+        function mostrarCadastro() {
+            const usuario = prompt('Escolha um nome de usuário:');
+            if (!usuario) return;
+
+            // Verificar se usuário já existe
+            if (usuarios[usuario]) {
+                alert('Este usuário já existe! Escolha outro nome.');
+                return;
+            }
+
+            const senha = prompt('Crie uma senha:');
+            if (!senha) return;
+
+            const nome = prompt('Qual seu nome completo:');
+            if (!nome) return;
+
+            // Criar novo usuário
+            usuarios[usuario] = {
+                senha: senha,
+                nome: nome,
+                dataCadastro: new Date().toISOString()
+            };
+            localStorage.setItem('bikerun_usuarios', JSON.stringify(usuarios));
+
+            alert('Conta criada com sucesso! Agora faça login.');
+            document.getElementById('input-usuario').value = usuario;
+            document.getElementById('input-senha').value = '';
+            document.getElementById('input-usuario').focus();
+        }
+
+        function esqueciSenha() {
+            const usuario = prompt('Digite seu nome de usuário:');
+            if (!usuario) return;
+
+            if (usuarios[usuario]) {
+                alert(`Sua senha é: ${usuarios[usuario].senha}\n\nRecomendamos alterá-la após o login por segurança.`);
+            } else {
+                alert('Usuário não encontrado!');
+            }
+        }
+
+        function entrarComoConvidado() {
+            usuarioLogado = 'convidado';
+            nomeUsuario = 'Convidado';
+            entrarNoApp();
+        }
+
+        function fazerLogout() {
+            if (confirm('Deseja realmente sair?')) {
+                usuarioLogado = null;
+                nomeUsuario = '';
+                localStorage.removeItem('bikerun_sessao');
+                mostrarTela('tela-login');
+                document.getElementById('input-usuario').value = '';
+                document.getElementById('input-senha').value = '';
+            }
+        }
+
+        function mostrarErroLogin(mensagem) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = mensagem;
+            errorElement.classList.add('ativa');
+            
+            setTimeout(() => {
+                errorElement.classList.remove('ativa');
+            }, 5000);
+        }
+
+        function entrarNoApp() {
+            document.getElementById('titulo-boas-vindas').textContent = `🚴‍♂️ Olá, ${nomeUsuario}!`;
+            carregarListaCorridas();
+            mostrarTela('tela-inicial');
+            mostrarNotificacao(`Bem-vindo(a), ${nomeUsuario}! 🎉`);
+        }
+
+        // ===== FUNÇÕES DE NAVEGAÇÃO =====
+        function mostrarTela(idTela) {
+            document.querySelectorAll('.tela').forEach(tela => {
+                tela.classList.remove('ativa');
+            });
+            document.getElementById(idTela).classList.add('ativa');
+            
+            // Inicializar mapas se necessário
+            if (idTela === 'tela-editor') {
+                setTimeout(inicializarMapaEditor, 100);
+            }
+        }
+
+        function irParaEditor() {
+            if (usuarioLogado === 'convidado') {
+                alert('Convidados não podem criar corridas. Faça login para criar suas próprias rotas!');
+                return;
+            }
+            mostrarTela('tela-editor');
+        }
+
+        function voltarParaInicial() {
+            carregarListaCorridas();
+            mostrarTela('tela-inicial');
+        }
+
+        function confirmarDesistencia() {
+            if (confirm('Tem certeza que deseja desistir da corrida?')) {
+                pararCorrida(true);
+            }
+        }
+
+        function alternarModoEscuro() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('btn-toggle-dark').textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', isDark);
+            
+            // Recarregar mapas
+            if (mapEditor) setTimeout(() => mapEditor.invalidateSize(), 300);
+            if (mapCorrida) setTimeout(() => mapCorrida.invalidateSize(), 300);
+        }
+
+        // ===== FUNÇÕES DE CORRIDAS =====
+        function carregarListaCorridas() {
+            const container = document.getElementById('lista-corridas');
+            container.innerHTML = '';
+            
+            let corridasSalvas = JSON.parse(localStorage.getItem('corridasSalvas')) || [];
+            if (corridasSalvas.length === 0) {
+                corridasSalvas = corridasExemplo;
+            }
+            
+            corridasSalvas.forEach(corrida => {
+                const card = criarCardCorrida(corrida);
+                container.appendChild(card);
+            });
+        }
+
+        function criarCardCorrida(corrida) {
+            const card = document.createElement('div');
+            card.className = 'card-corrida';
+            card.addEventListener('click', () => mostrarDetalhesCorrida(corrida.id));
+            
+            const rankings = JSON.parse(localStorage.getItem('rankings')) || {};
+            const tempos = rankings[corrida.id] || [];
+            const melhorTempo = tempos.length > 0 ? tempos[0].timeStr : 'Nenhum';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div>
+                        <div class="card-titulo">${corrida.nome}</div>
+                        <div class="card-criador">👤 ${corrida.criador}</div>
+                    </div>
+                    <div class="card-badge">${corrida.participantes} participantes</div>
+                </div>
+                
+                <div class="card-info">
+                    <div class="info-item">
+                        <div class="info-label">Distância</div>
+                        <div class="info-value">📏 ${formatarDistancia(corrida.distancia)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Tempo</div>
+                        <div class="info-value">⏱️ ${formatarTempo(corrida.tempoEstimado)}</div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="ranking-preview">🏆 Melhor: ${melhorTempo}</div>
+                    <button class="btn-correr">Correr</button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function mostrarDetalhesCorrida(idCorrida) {
+            let corridasSalvas = JSON.parse(localStorage.getItem('corridasSalvas')) || [];
+            if (corridasSalvas.length === 0) {
+                corridasSalvas = corridasExemplo;
+            }
+            
+            const corrida = corridasSalvas.find(c => c.id === idCorrida);
+            if (!corrida) return;
+            
+            document.getElementById('detalhes-titulo').textContent = corrida.nome;
+            document.getElementById('detalhes-distancia').textContent = formatarDistancia(corrida.distancia);
+            document.getElementById('detalhes-tempo').textContent = formatarTempo(corrida.tempoEstimado);
+            document.getElementById('detalhes-criador').textContent = corrida.criador;
+            
+            carregarRankingCorrida(idCorrida);
+            
+            idDaCorridaAtual = idCorrida;
+            pontosDaCorridaAtual = corrida.pontos;
+            
+            mostrarTela('tela-detalhes-corrida');
+        }
+
+        function carregarRankingCorrida(idCorrida) {
+            const container = document.getElementById('detalhes-ranking');
+            container.innerHTML = '';
+            
+            const rankings = JSON.parse(localStorage.getItem('rankings')) || {};
+            const tempos = rankings[idCorrida] || [];
+            
+            if (tempos.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--gray-500);">Nenhum tempo registrado ainda</div>';
+                return;
+            }
+            
+            tempos.slice(0, 5).forEach((tempo, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                
+                let medalha = '';
+                if (index === 0) medalha = '🥇';
+                else if (index === 1) medalha = '🥈';
+                else if (index === 2) medalha = '🥉';
+                
+                item.innerHTML = `
+                    <div class="ranking-pos">${medalha} ${index + 1}.</div>
+                    <div class="ranking-nome">${tempo.user}</div>
+                    <div class="ranking-tempo">${tempo.timeStr}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // ===== EDITOR DE MAPA =====
+        function inicializarMapaEditor() {
+            if (mapEditor) {
+                mapEditor.remove();
+            }
+            
+            mapEditor = L.map('map-editor').setView(centroDoMapa, 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(mapEditor);
+            
+            mapEditor.on('click', function(e) {
+                adicionarPontoNoMapa(e.latlng);
+            });
+            
+            // Limpar dados anteriores
+            pontosDaCorrida = [];
+            marcadores.forEach(m => mapEditor.removeLayer(m));
+            marcadores = [];
+            if (linhaDoTrajeto) mapEditor.removeLayer(linhaDoTrajeto);
+            linhaDoTrajeto = null;
+            
+            mudarModoMarcacao('inicio');
+        }
+
+        function mudarModoMarcacao(modo) {
+            modoDeMarcacao = modo;
+            
+            // Atualizar botões
+            document.querySelectorAll('.btn-mapa').forEach(btn => {
+                btn.classList.remove('modo-ativo');
+            });
+            
+            if (modo === 'inicio') {
+                document.getElementById('btn-inicio').classList.add('modo-ativo');
+            } else if (modo === 'checkpoint') {
+                document.getElementById('btn-checkpoint').classList.add('modo-ativo');
+            } else if (modo === 'chegada') {
+                document.getElementById('btn-chegada').classList.add('modo-ativo');
+            }
+        }
+
+        function adicionarPontoNoMapa(coord) {
+            const latlng = [coord.lat, coord.lng];
+            
+            if (modoDeMarcacao === 'inicio') {
+                // Remover início anterior se existir
+                if (marcadores[0]) {
+                    mapEditor.removeLayer(marcadores[0]);
+                }
+                
+                const marcador = L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'marcador-inicio',
+                        html: '<div style="background: #0066FF; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">🚩</div>',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    })
+                }).addTo(mapEditor).bindPopup('<b>Ponto de Início</b>').openPopup();
+                
+                pontosDaCorrida[0] = latlng;
+                marcadores[0] = marcador;
+                mudarModoMarcacao('checkpoint');
+                
+            } else if (modoDeMarcacao === 'checkpoint') {
+                const numeroCheckpoint = pontosDaCorrida.length;
+                const marcador = L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'marcador-checkpoint',
+                        html: `<div style="background: #FF9800; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">${numeroCheckpoint}</div>`,
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                    })
+                }).addTo(mapEditor).bindPopup(`Checkpoint ${numeroCheckpoint}`);
+                
+                pontosDaCorrida.push(latlng);
+                marcadores.push(marcador);
+                
+            } else if (modoDeMarcacao === 'chegada') {
+                const marcador = L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'marcador-chegada',
+                        html: '<div style="background: #FF4444; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">🏁</div>',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    })
+                }).addTo(mapEditor).bindPopup('<b>Ponto de Chegada</b>').openPopup();
+                
+                pontosDaCorrida.push(latlng);
+                marcadores.push(marcador);
+                mudarModoMarcacao('nenhum');
+            }
+            
+            // Atualizar linha do trajeto
+            if (linhaDoTrajeto) {
+                mapEditor.removeLayer(linhaDoTrajeto);
+            }
+            if (pontosDaCorrida.length >= 2) {
+                linhaDoTrajeto = L.polyline(pontosDaCorrida, {
+                    color: '#0066FF',
+                    weight: 5,
+                    opacity: 0.8,
+                    lineJoin: 'round'
+                }).addTo(mapEditor);
+            }
+        }
+
+        function salvarCorrida() {
+            if (pontosDaCorrida.length < 2) {
+                mostrarNotificacao('Adicione pelo menos o ponto de início e chegada!', 'erro');
+                return;
+            }
+            
+            const nome = prompt('Qual o nome da corrida?', 'Minha Corrida');
+            if (!nome) return;
+            
+            const distancia = calcularDistanciaTotal(pontosDaCorrida);
+            const tempoEstimado = Math.round((distancia / 1000) * 3); // 3 min/km
+            
+            const novaCorrida = {
+                id: Date.now(),
+                nome: nome,
+                criador: nomeUsuario,
+                pontos: pontosDaCorrida,
+                distancia: distancia,
+                tempoEstimado: tempoEstimado,
+                participantes: 0
+            };
+            
+            let corridasSalvas = JSON.parse(localStorage.getItem('corridasSalvas')) || [];
+            corridasSalvas.push(novaCorrida);
+            localStorage.setItem('corridasSalvas', JSON.stringify(corridasSalvas));
+            
+            mostrarNotificacao(`Corrida "${nome}" salva com sucesso! 🎉`);
+            carregarListaCorridas();
+            mostrarTela('tela-inicial');
+        }
+
+        // ===== SISTEMA DE CORRIDA =====
+        function prepararCorrida() {
+            mostrarTela('tela-corrida');
+            inicializarMapaCorrida();
+        }
+
+        function inicializarMapaCorrida() {
+            if (mapCorrida) {
+                mapCorrida.remove();
+            }
+            
+            mapCorrida = L.map('map-corrida').setView(pontosDaCorridaAtual[0], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(mapCorrida);
+            
+            // Desenhar trajeto
+            L.polyline(pontosDaCorridaAtual, {
+                color: '#FF4444',
+                weight: 6,
+                opacity: 0.8,
+                lineJoin: 'round'
+            }).addTo(mapCorrida);
+            
+            // Adicionar marcadores
+            pontosDaCorridaAtual.forEach((ponto, index) => {
+                let icon, popupText;
+                
+                if (index === 0) {
+                    icon = L.divIcon({
+                        className: 'marcador-inicio-corrida',
+                        html: '<div style="background: #0066FF; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">🚩</div>',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+                    popupText = '<b>Ponto de Início</b>';
+                } else if (index === pontosDaCorridaAtual.length - 1) {
+                    icon = L.divIcon({
+                        className: 'marcador-chegada-corrida',
+                        html: '<div style="background: #FF4444; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">🏁</div>',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+                    popupText = '<b>Ponto de Chegada</b>';
+                } else {
+                    icon = L.divIcon({
+                        className: 'marcador-checkpoint-corrida',
+                        html: `<div style="background: #FF9800; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">${index}</div>`,
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                    });
+                    popupText = `Checkpoint ${index}`;
+                }
+                
+                L.marker(ponto, { icon: icon }).addTo(mapCorrida).bindPopup(popupText);
+            });
+            
+            // Configurar próximo checkpoint
+            marcadorProximoCheckpoint = L.marker(pontosDaCorridaAtual[0], {
+                icon: L.divIcon({
+                    className: 'proximo-checkpoint',
+                    html: '<div style="background: #00C853; color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.4); animation: pulse 1.5s infinite;">→</div>',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18]
+                })
+            }).addTo(mapCorrida).bindPopup('<b>Próximo Checkpoint</b>').openPopup();
+            
+            // Marcador de posição atual
+            marcadorPosicaoAtual = L.circleMarker([0, 0], {
+                radius: 10,
+                color: '#0066FF',
+                fillColor: '#0066FF',
+                fillOpacity: 1,
+                weight: 3
+            });
+            
+            // Resetar estado da corrida
+            checkpointAlvoIndex = 0;
+            document.getElementById('cronometro').textContent = '00:00:00';
+            document.getElementById('hud-checkpoint').textContent = 'Próximo: Início';
+            document.getElementById('hud-distancia').textContent = 'Distância: -- m';
+            document.getElementById('progresso-corrida').textContent = `Checkpoint 0/${pontosDaCorridaAtual.length - 1}`;
+            document.getElementById('btn-iniciar-corrida-mapa').style.display = 'block';
+        }
+
+        function iniciarCorrida() {
+            if (!navigator.geolocation) {
+                mostrarNotificacao('Seu navegador não suporta GPS!', 'erro');
+                return;
+            }
+            
+            tempoInicio = new Date();
+            cronometroInterval = setInterval(atualizarCronometro, 1000);
+            
+            document.getElementById('btn-iniciar-corrida-mapa').style.display = 'none';
+            
+            watchID = navigator.geolocation.watchPosition(
+                atualizarPosicao,
+                erroGPS,
+                { 
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+            
+            mostrarNotificacao('Corrida iniciada! Boa sorte! 🚴‍♂️');
+        }
+
+        function atualizarPosicao(posicao) {
+            const posAtual = [posicao.coords.latitude, posicao.coords.longitude];
+            
+            // Atualizar marcador de posição
+            if (!mapCorrida.hasLayer(marcadorPosicaoAtual)) {
+                marcadorPosicaoAtual.addTo(mapCorrida);
+            }
+            marcadorPosicaoAtual.setLatLng(posAtual);
+            
+            // Centralizar mapa na posição atual (suavemente)
+            mapCorrida.panTo(posAtual, { animate: true, duration: 1.0 });
+            
+            // Calcular distância até o próximo checkpoint
+            const alvo = pontosDaCorridaAtual[checkpointAlvoIndex];
+            const distancia = calcularDistancia(posAtual[0], posAtual[1], alvo[0], alvo[1]);
+            
+            document.getElementById('hud-distancia').textContent = `Distância: ${Math.round(distancia)} m`;
+            
+            // Verificar se atingiu o checkpoint
+            if (distancia < RAIO_DE_ACERTO_CHECKPOINT) {
+                checkpointAlvoIndex++;
+                
+                if (checkpointAlvoIndex >= pontosDaCorridaAtual.length) {
+                    concluirCorrida();
+                    return;
+                }
+                
+                // Atualizar próximo checkpoint
+                const proximoAlvo = pontosDaCorridaAtual[checkpointAlvoIndex];
+                marcadorProximoCheckpoint.setLatLng(proximoAlvo);
+                
+                const nomeCheckpoint = checkpointAlvoIndex === pontosDaCorridaAtual.length - 1 ? 
+                    'Chegada' : `Checkpoint ${checkpointAlvoIndex}`;
+                
+                document.getElementById('hud-checkpoint').textContent = `Próximo: ${nomeCheckpoint}`;
+                document.getElementById('progresso-corrida').textContent = `Checkpoint ${checkpointAlvoIndex}/${pontosDaCorridaAtual.length - 1}`;
+                
+                mostrarNotificacao(`✅ ${nomeCheckpoint} alcançado!`);
+            }
+        }
+
+        function erroGPS(erro) {
+            console.error('Erro GPS:', erro);
+            document.getElementById('hud-distancia').textContent = 'Erro no GPS';
+            
+            if (erro.code === 1) {
+                mostrarNotificacao('Permita o acesso à sua localização para usar o GPS!', 'erro');
+                pararCorrida(true);
+            }
+        }
+
+        function atualizarCronometro() {
+            const agora = new Date();
+            const diferenca = new Date(agora - tempoInicio);
+            
+            const horas = String(diferenca.getUTCHours()).padStart(2, '0');
+            const minutos = String(diferenca.getMinutes()).padStart(2, '0');
+            const segundos = String(diferenca.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('cronometro').textContent = `${horas}:${minutos}:${segundos}`;
+        }
+
+        function concluirCorrida() {
+            const tempoFinal = document.getElementById('cronometro').textContent;
+            
+            pararCorrida(false);
+            mostrarNotificacao(`🏁 Corrida concluída! Seu tempo: ${tempoFinal}`, 'sucesso');
+            
+            // Calcular tempo em segundos
+            const tempoObj = new Date(new Date() - tempoInicio);
+            const tempoSegundos = tempoObj.getUTCHours() * 3600 + tempoObj.getMinutes() * 60 + tempoObj.getSeconds();
+            
+            // Salvar no ranking
+            salvarNoRanking(idDaCorridaAtual, tempoSegundos, tempoFinal);
+            
+            // Atualizar número de participantes
+            atualizarParticipantes(idDaCorridaAtual);
+            
+            setTimeout(() => {
+                carregarListaCorridas();
+                mostrarTela('tela-inicial');
+            }, 4000);
+        }
+
+        function pararCorrida(desistencia) {
+            if (cronometroInterval) clearInterval(cronometroInterval);
+            if (watchID) navigator.geolocation.clearWatch(watchID);
+            
+            if (desistencia) {
+                mostrarNotificacao('Corrida cancelada', 'info');
+                carregarListaCorridas();
+                mostrarTela('tela-inicial');
+            }
+        }
+
+        function salvarNoRanking(idCorrida, tempoSegundos, tempoFormatado) {
+            let rankings = JSON.parse(localStorage.getItem('rankings')) || {};
+            
+            if (!rankings[idCorrida]) {
+                rankings[idCorrida] = [];
+            }
+            
+            rankings[idCorrida].push({
+                user: nomeUsuario,
+                timeSec: tempoSegundos,
+                timeStr: tempoFormatado,
+                date: new Date().toISOString()
+            });
+            
+            // Ordenar por tempo (menor primeiro)
+            rankings[idCorrida].sort((a, b) => a.timeSec - b.timeSec);
+            
+            localStorage.setItem('rankings', JSON.stringify(rankings));
+        }
+
+        function atualizarParticipantes(idCorrida) {
+            let corridasSalvas = JSON.parse(localStorage.getItem('corridasSalvas')) || [];
+            const corridaIndex = corridasSalvas.findIndex(c => c.id === idCorrida);
+            
+            if (corridaIndex !== -1) {
+                if (!corridasSalvas[corridaIndex].participantes) {
+                    corridasSalvas[corridaIndex].participantes = 0;
+                }
+                corridasSalvas[corridaIndex].participantes++;
+                localStorage.setItem('corridasSalvas', JSON.stringify(corridasSalvas));
+            }
+        }
+
+        // ===== FUNÇÕES UTILITÁRIAS =====
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Raio da Terra em metros
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+
+        function calcularDistanciaTotal(pontos) {
+            let total = 0;
+            for (let i = 0; i < pontos.length - 1; i++) {
+                total += calcularDistancia(
+                    pontos[i][0], pontos[i][1],
+                    pontos[i+1][0], pontos[i+1][1]
+                );
+            }
+            return Math.round(total);
+        }
+
+        function formatarDistancia(metros) {
+            if (metros < 1000) {
+                return `${metros} m`;
+            } else {
+                return `${(metros / 1000).toFixed(1)} km`;
+            }
+        }
+
+        function formatarTempo(minutos) {
+            if (minutos < 1) {
+                return '< 1 min';
+            } else if (minutos < 60) {
+                return `~${minutos} min`;
+            } else {
+                const horas = Math.floor(minutos / 60);
+                const mins = minutos % 60;
+                return `~${horas}h${mins > 0 ? `${mins}min` : ''}`;
+            }
+        }
+
+        function mostrarNotificacao(mensagem, tipo = 'sucesso') {
+            const notificacao = document.getElementById('notificacao');
+            notificacao.textContent = mensagem;
+            notificacao.className = 'notificacao';
+            
+            if (tipo === 'erro') {
+                notificacao.classList.add('erro');
+            } else if (tipo === 'info') {
+                notificacao.classList.add('info');
+            }
+            
+            notificacao.classList.add('ativa');
+            
+            setTimeout(() => {
+                notificacao.classList.remove('ativa');
+            }, 4000);
+        }
+
+        // ===== ANIMAÇÃO PULSE =====
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
